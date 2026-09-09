@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Injectable()
 export class PuntoredService {
@@ -10,6 +11,7 @@ export class PuntoredService {
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   async auth(): Promise<string> {
@@ -17,7 +19,6 @@ export class PuntoredService {
     const user = this.config.get<string>('PUNTORED_USER');
     const password = this.config.get<string>('PUNTORED_PASSWORD');
     const apiKey = this.config.get<string>('PUNTORED_API_KEY');
-
 
     const response = await firstValueFrom(
       this.http.post(`${baseUrl}/auth`, { user, password }, {
@@ -41,14 +42,27 @@ export class PuntoredService {
     return response.data;
   }
 
-  async buy(cellPhone: string, value: number, supplierId: string) {
+  async buy(userId: string, cellPhone: string, value: number, supplierId: string) {
     if (!this.token) await this.auth();
     const baseUrl = this.config.get<string>('PUNTORED_BASE_URL');
+
     const response = await firstValueFrom(
       this.http.post(`${baseUrl}/buy`, { cellPhone, value, supplierId }, {
         headers: { authorization: this.token },
       })
     );
-    return response.data;
+
+    const result = response.data;
+
+    await this.transactionService.create({
+      userId,
+      supplierId,
+      supplierName: result.supplierName ?? 'Desconocido',
+      cellPhone,
+      value,
+      status: result.status ?? 'success',
+    });
+
+    return result;
   }
 }
