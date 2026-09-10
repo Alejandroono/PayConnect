@@ -1,5 +1,4 @@
-# 📡 Plataforma Puntored - Prueba Técnica
-
+# 📡 Plataforma PayConnect
 Este proyecto es una aplicación fullstack que integra un **frontend en React + Vite** y un **backend en NestJS** para simular el flujo de recargas con proveedores (Claro, Movistar, Tigo, WOM).
 
 ---
