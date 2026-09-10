@@ -1,8 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { TransactionService } from '../transaction/transaction.service';
+
+const SUPPLIERS: Record<string, string> = {
+  "8753": "Claro",
+  "9773": "Movistar",
+  "3398": "Tigo",
+  "4689": "WOM",
+};
 
 @Injectable()
 export class PuntoredService {
@@ -11,8 +17,17 @@ export class PuntoredService {
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
-    private readonly transactionService: TransactionService,
   ) {}
+
+  private getErrorMessage(error: any): string {
+    if (error?.response?.data) {
+      return JSON.stringify(error.response.data);
+    }
+    if (error?.message) {
+      return error.message;
+    }
+    return String(error);
+  }
 
   async auth(): Promise<string> {
     const baseUrl = this.config.get<string>('PUNTORED_BASE_URL');
@@ -20,49 +35,71 @@ export class PuntoredService {
     const password = this.config.get<string>('PUNTORED_PASSWORD');
     const apiKey = this.config.get<string>('PUNTORED_API_KEY');
 
-    const response = await firstValueFrom(
-      this.http.post(`${baseUrl}/auth`, { user, password }, {
-        headers: { 'x-api-key': apiKey },
-      })
-    );
+    try {
+      const response = await firstValueFrom(
+        this.http.post(`${baseUrl}/auth`, { user, password }, {
+          headers: { 'x-api-key': apiKey },
+        })
+      );
 
-    this.token = response.data.token;
-    if (!this.token) throw new Error('No se pudo obtener el token de Puntored');
-    return this.token;
+      this.token = response.data?.token?.replace(/^Bearer\s+/i, '');
+      console.log('Token limpio:', this.token);
+
+      if (!this.token) throw new UnauthorizedException('No se pudo obtener el token de Puntored');
+      return this.token;
+    } catch (error: any) {
+      console.error('Error en auth:', this.getErrorMessage(error));
+      throw new UnauthorizedException('Credenciales inválidas o API Key incorrecta');
+    }
   }
 
   async getSuppliers() {
-    if (!this.token) await this.auth();
+    await this.auth();
     const baseUrl = this.config.get<string>('PUNTORED_BASE_URL');
-    const response = await firstValueFrom(
-      this.http.get(`${baseUrl}/getSuppliers`, {
-        headers: { authorization: this.token },
-      })
-    );
-    return response.data;
+    try {
+      const response = await firstValueFrom(
+        this.http.get(`${baseUrl}/getSuppliers`, {
+          headers: { Authorization: `Bearer ${this.token}` },
+        })
+      );
+
+      return response.data ?? [];
+    } catch (error: any) {
+      console.error('Error en getSuppliers:', this.getErrorMessage(error));
+      throw new BadRequestException('No se pudo obtener proveedores');
+    }
   }
 
-  async buy(userId: string, cellPhone: string, value: number, supplierId: string) {
-    if (!this.token) await this.auth();
+  async buy(cellPhone: string, value: number, supplierId: string) {
+    await this.auth();
     const baseUrl = this.config.get<string>('PUNTORED_BASE_URL');
 
-    const response = await firstValueFrom(
-      this.http.post(`${baseUrl}/buy`, { cellPhone, value, supplierId }, {
-        headers: { authorization: this.token },
-      })
-    );
+    const payload = { cellPhone, value: Number(value), supplierId };
 
-    const result = response.data;
-
-    await this.transactionService.create({
-      userId,
-      supplierId,
-      supplierName: result.supplierName ?? 'Desconocido',
-      cellPhone,
-      value,
-      status: result.status ?? 'success',
+    console.log('Enviando compra:', {
+      url: `${baseUrl}/buy`,
+      body: payload,
+      headers: { Authorization: `Bearer ${this.token}` },
     });
 
-    return result;
+    try {
+      const response = await firstValueFrom(
+        this.http.post(`${baseUrl}/buy`, payload, {
+          headers: { Authorization: `Bearer ${this.token}` },
+        })
+      );
+
+      return {
+        transactionId: response.data?.transactionId ?? null,
+        status: response.data?.status ?? 'success',
+        supplierName: SUPPLIERS[supplierId] ?? 'Desconocido',
+        cellPhone,
+        value,
+        supplierId,
+      };
+    } catch (error: any) {
+      console.error('Error en buy:', this.getErrorMessage(error));
+      throw new BadRequestException('La recarga fue rechazada por Puntored');
+    }
   }
 }

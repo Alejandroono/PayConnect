@@ -9,9 +9,27 @@ export class TransactionService {
     @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
   ) {}
 
-  async create(data: Partial<Transaction>): Promise<Transaction> {
-    const transaction = new this.transactionModel(data);
-    return transaction.save();
+  async create(data: {
+    userId: string;
+    cellPhone: string;
+    value: number;
+    supplierId: string;
+    status?: string;
+    transactionId?: string;
+    supplierName?: string;
+  }): Promise<Transaction> {
+    const transaction = new this.transactionModel({
+      userId: data.userId,
+      cellPhone: data.cellPhone,
+      value: data.value,
+      supplierId: data.supplierId,
+      status: data.status ?? 'success',
+      transactionId: data.transactionId ?? null,
+      supplierName: data.supplierName ?? null,
+    });
+
+    const saved = await transaction.save();
+    return saved;
   }
 
   async findByUser(userId: string): Promise<Transaction[]> {

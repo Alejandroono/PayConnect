@@ -1,75 +1,86 @@
-# React + TypeScript + Vite
+# 📡 Plataforma Puntored - Prueba Técnica
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto es una aplicación fullstack que integra un **frontend en React + Vite** y un **backend en NestJS** para simular el flujo de recargas con proveedores (Claro, Movistar, Tigo, WOM).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Funcionalidades
 
-## React Compiler
+- **Login con JWT**: autenticación segura con tokens.
+- **Listado de proveedores**: muestra los logos de los proveedores disponibles.
+- **Formulario de compra (BuyForm)**: permite realizar recargas indicando número, valor y proveedor.
+- **Historial de transacciones**: muestra las compras realizadas en tiempo real.
+- **Navbar con logout**: cierre de sesión con botón estilizado.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tecnologías usadas
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: React, Vite, TypeScript, css.
+- **Backend**: NestJS, Passport-JWT, Axios.
+- **Base de datos / API externa**: MongoDB, integración con Puntored API.
+- **Autenticación**: JWT con estrategia personalizada.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ⚙️ Configuración de entorno
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Backend (`.env` en carpeta `server`)
 
-```
+Debes crear un archivo `.env` con las siguientes variables:
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+PUNTORED_BASE_URL=http://localhost:3000
+PUNTORED_USER=tuUsuario
+PUNTORED_PASSWORD=tuPassword
+PUNTORED_API_KEY=tuApiKey
+JWT_SECRET=clavesecreta
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 
-```
+
+### Frontend (`.env` en carpeta `client`)
+
+Debes crear un archivo `.env` con las siguientes variables:
+
+VITE_API_URL=http://localhost:3000
+
+
+> ⚠️ Importante: en producción, nunca hardcodear claves. Usa `.env` o gestores de secretos.
+
+---
+
+## ▶️ Cómo correr el proyecto
+
+1. **Clonar el repositorio**
+
+   git clone <url-del-repo>
+
+   Instalar dependencias
+
+    Backend:
+
+    cd server
+    npm install
+    npm run start:dev
+
+    Frontend:
+
+    cd client
+    npm install
+    npm run dev
+
+    Abrir en navegador
+
+    Frontend: http://localhost:5173
+
+    Backend: http://localhost:3000
+
+    # 📊 Flujo de la aplicación
+
+    El usuario inicia sesión → se genera un JWT.
+
+    Se redirige al inicio → se muestran Proveedores, BuyForm y Historial en la misma vista.
+
+    Al realizar una compra → se refresca automáticamente el historial.
+
+    El usuario puede cerrar sesión con el botón estilizado en el Navbar.

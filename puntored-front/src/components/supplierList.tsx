@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { getSuppliers } from "../services/api";
 
+interface Supplier {
+  id: string;
+  name: string;
+}
+
 export function SuppliersList() {
-  const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   useEffect(() => {
     getSuppliers()
@@ -10,14 +15,31 @@ export function SuppliersList() {
       .catch(err => console.error("Error cargando proveedores:", err));
   }, []);
 
+  const logos: Record<string, string> = {
+    Claro: "/Claro_logo.svg",
+    Movistar: "/movistar.png",
+    Tigo: "/tigo.jpg",
+    WOM: "",
+  };
+
   return (
-    <div>
-      <h2>📡 Proveedores disponibles</h2>
-      <ul>
-        {suppliers.map(s => (
-          <li key={s.id}>{s.name} (ID: {s.id})</li>
-        ))}
-      </ul>
+  <div className="card">
+    <h2 className="text-xl font-semibold text-pink-700 mb-4">📡 Proveedores disponibles</h2>
+    <div className="suppliers-container">
+      {suppliers.length === 0 ? (
+        <p className="text-gray-500">No hay proveedores disponibles</p>
+      ) : (
+        suppliers.map(s => (
+          <img
+            key={s.id}
+            src={logos[s.name]}
+            alt={s.name}
+            className="h-16 cursor-pointer"
+          />
+        ))
+      )}
     </div>
-  );
+  </div>
+);
+
 }

@@ -9,19 +9,22 @@ export class Transaction {
   userId!: string;
 
   @Prop({ required: true })
-  supplierId!: string;
-
-  @Prop({ required: true })
-  supplierName!: string;
-
-  @Prop({ required: true })
   cellPhone!: string;
 
   @Prop({ required: true })
   value!: number;
 
+  @Prop({ required: true })
+  supplierId!: string;
+
   @Prop({ default: 'success' })
   status!: string;
+
+  @Prop()
+  transactionId?: string;
+
+  @Prop()
+  supplierName?: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
