@@ -1,0 +1,69 @@
+/* Fondo centrado */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f48fb1, #ce93d8);
+}
+
+/* Caja blanca */
+.login-box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+}
+
+/* Inputs */
+.login-input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Botón login */
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  background: #e91e63;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.login-btn:hover {
+  background: #d81b60;
+}
+
+/* Botón registrar */
+.register-btn {
+  width: 100%;
+  padding: 10px;
+  background: #f1f1f1;
+  color: #333;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.register-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Error */
+.error-msg {
+  color: #c62828;
+  margin-top: 10px;
+  font-size: 14px;
+}

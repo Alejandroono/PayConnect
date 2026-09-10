@@ -6,6 +6,7 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [HttpModule],
   providers: [PuntoredService],
-  controllers: [PuntoredController]
+  controllers: [PuntoredController],
+  exports: [PuntoredService],
 })
 export class PuntoredModule {}
